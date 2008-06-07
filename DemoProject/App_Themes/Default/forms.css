@@ -1,0 +1,37 @@
+﻿form {  /* set width in form, not fieldset (still takes up more room w/ fieldset width */
+  font:100% verdana,arial,sans-serif;
+  margin: 0;
+  padding: 0;
+  min-width: 500px;
+  max-width: 600px;
+  width: 560px; 
+}
+
+form label { 
+	display: block;  /* block float the labels to left column, set a width */
+	float: left; 
+	width: 150px; 
+	padding: 0; 
+	margin: 5px 0 0; /* set top margin same as form input - textarea etc. elements */
+	text-align: right; 
+}
+
+textarea { overflow: auto; }
+
+form small {
+	display: block;
+	padding: 1px 3px;
+	font-size: 66%;
+}
+
+form .required{font-weight:bold;} /* uses class instead of div, more efficient */
+
+span.error { color:#990000; font-weight:bold; font-size: 80%; }
+
+form div.row { margin-top:5px; margin-bottom: 10px; }
+
+form div.row div.field { margin-left: 155px; }
+
+div.youtube { width: 425px; height: 344px; margin: 10px; }
+
+input.btn-submit { background: #3399CC url(img/bg_btn_blue_500x50.gif); border:1px solid #006699; color:#FFFFFF; padding:2px 8px 1px; font-weight:bold; cursor: pointer; }

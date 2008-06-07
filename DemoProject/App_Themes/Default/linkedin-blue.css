@@ -1,0 +1,33 @@
+﻿.linkedin-blue .ajax__tab_header 
+{
+	color:#fff;
+}
+.linkedin-blue .ajax__tab_outer
+{
+    background:url(img/blue_left.gif) no-repeat 0px 0px;
+}
+.linkedin-blue .ajax__tab_inner
+{
+    background:url(img/blue_right.gif) no-repeat 100% 0px;
+}
+.linkedin-blue .ajax__tab_hover .ajax__tab_outer
+{
+    background:url(img/blue_left.gif) no-repeat 0px -150px;
+}
+.linkedin-blue .ajax__tab_hover .ajax__tab_inner
+{
+    background:url(img/blue_right.gif) no-repeat 100% -150px;
+}
+.linkedin-blue .ajax__tab_active .ajax__tab_outer
+{
+    background:url(img/blue_left.gif) no-repeat 0px -300px;
+}
+.linkedin-blue .ajax__tab_active .ajax__tab_inner
+{
+    background:url(img/blue_right.gif) no-repeat 100% -300px;
+}
+.linkedin-blue .ajax__tab_body 
+{
+	border:solid 2px #4498c2;	
+}
+

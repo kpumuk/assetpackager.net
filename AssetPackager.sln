@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoProject", "DemoProject\DemoProject.csproj", "{18906FD2-D90E-4C10-9298-F387D8519975}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetPackager", "AssetPackager\AssetPackager.csproj", "{209B7082-9D44-4238-8727-C0B037DC9185}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18906FD2-D90E-4C10-9298-F387D8519975}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18906FD2-D90E-4C10-9298-F387D8519975}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18906FD2-D90E-4C10-9298-F387D8519975}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18906FD2-D90E-4C10-9298-F387D8519975}.Release|Any CPU.Build.0 = Release|Any CPU
+		{209B7082-9D44-4238-8727-C0B037DC9185}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{209B7082-9D44-4238-8727-C0B037DC9185}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{209B7082-9D44-4238-8727-C0B037DC9185}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{209B7082-9D44-4238-8727-C0B037DC9185}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
