@@ -26,7 +26,8 @@ namespace AssetPackager
 		/// <param name="e">An <see cref="EventArgs" /> that contains no event data.</param>
 		private void BeginRequest(object sender, EventArgs e)
 		{
-			if (Context.Request.AppRelativeCurrentExecutionFilePath.EndsWith(".aspx") && Context.Request.HttpMethod == "GET")
+			if (Context.Request.AppRelativeCurrentExecutionFilePath.EndsWith(".aspx", StringComparison.OrdinalIgnoreCase) &&
+				String.Compare(Context.Request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase) == 0)
 			{
 				Context.Response.Filter = new ScriptDeferFilter(Context.Response);
 			}

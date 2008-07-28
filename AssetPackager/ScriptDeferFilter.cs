@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Web;
 using System.IO;
 using System.Text;
@@ -10,12 +11,12 @@ namespace AssetPackager
 	/// Combines all script blocks and moves them to the bottom of the page. Combines multiple
 	/// external JavaScripts into single one (see <see cref="CombineScripts" />).
 	/// </summary>
+	[SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "ASP.NET filters technique implemented using streams.")]
 	public class ScriptDeferFilter : Stream
 	{
 		/// <summary>
 		/// Name of the hidden field with loaded scripts list.
 		/// </summary>
-		public const string SCRIPT_DEFER_HIDDEN_FIELD = "__SCRIPTDEFER";
 
 		#region Private fields
 
@@ -149,10 +150,10 @@ namespace AssetPackager
 		/// <summary>
 		/// Sets the length of the current stream.
 		/// </summary>
-		/// <param name="length">The desired length of the current stream in bytes.</param>
-		public override void SetLength(long length)
+		/// <param name="value">The desired length of the current stream in bytes.</param>
+		public override void SetLength(long value)
 		{
-			_responseStream.SetLength(length);
+			_responseStream.SetLength(value);
 		}
 
 		/// <summary>

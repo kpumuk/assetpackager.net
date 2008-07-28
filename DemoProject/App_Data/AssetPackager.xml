@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <sets>	
-	<set name="base" force="true">
+	<set name="base" force="true" type="js">
 		<url name="a" resourceName="WebForms.js" type="System.Web.UI.Page, System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
 		<url name="b" resourceName="WebUIValidation.js" assembly="System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
 		<url name="c" resourceName="MicrosoftAjax.js" assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
 		<url name="d" resourceName="MicrosoftAjaxWebForms.js" assembly="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
 		<url name="e" path="~/javascripts/swfobject.js" />
 	</set>
-	<set name="act">
+	<set name="act" type="js">
 		<url name="a" resourceName="AjaxControlToolkit.Common.Common.js" assembly="AjaxControlToolkit, Version=1.0.20229.20821, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e" />
 		<url name="b" resourceName="AjaxControlToolkit.ExtenderBase.BaseScripts.js" assembly="AjaxControlToolkit, Version=1.0.20229.20821, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e" />
 		<url name="c" resourceName="AjaxControlToolkit.Tabs.Tabs.js" assembly="AjaxControlToolkit, Version=1.0.20229.20821, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e" />

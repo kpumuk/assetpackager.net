@@ -49,6 +49,7 @@
   <ItemGroup>
     <Content Include="App_Data\AssetPackager.xml" />
     <Content Include="App_Themes\Default\forms.css" />
+    <Content Include="App_Themes\Default\img\bg_btn_blue_500x50.gif" />
     <Content Include="App_Themes\Default\img\blue_bl.gif" />
     <Content Include="App_Themes\Default\img\blue_br.gif" />
     <Content Include="App_Themes\Default\img\blue_left.gif" />
@@ -56,13 +57,26 @@
     <Content Include="App_Themes\Default\img\blue_side.gif" />
     <Content Include="App_Themes\Default\img\blue_tl.gif" />
     <Content Include="App_Themes\Default\img\blue_tr.gif" />
+    <Content Include="App_Themes\Default\img\EmptyStar.png" />
+    <Content Include="App_Themes\Default\img\FilledStar.png" />
+    <Content Include="App_Themes\Default\img\SavedStar.png" />
     <Content Include="App_Themes\Default\linkedin-blue.css" />
+    <Content Include="App_Themes\Default\rating.css" />
     <Content Include="App_Themes\Default\tabs.css" />
+    <Content Include="Controls\Success.ascx" />
     <Content Include="Default.aspx" />
+    <Content Include="javascripts\swfobject.debug.js" />
     <Content Include="javascripts\swfobject.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\Success.ascx.cs">
+      <DependentUpon>Success.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Success.ascx.designer.cs">
+      <DependentUpon>Success.ascx</DependentUpon>
+    </Compile>
     <Compile Include="Default.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
       <DependentUpon>Default.aspx</DependentUpon>

@@ -12,6 +12,9 @@
     <AssemblyName>AssetPackager</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SignAssembly>false</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>DmytroShteflyuk.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,20 +36,35 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Web" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web.Extensions, Version=1.0.61025.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\MimeTypeAttribute.cs" />
+    <Compile Include="Helpers\AssetListTypeHelper.cs" />
+    <Compile Include="Helpers\AssetsHelper.cs" />
+    <Compile Include="WebControls\AssetPackagerScriptManager.cs" />
+    <Compile Include="Assets\ShortNameAttribute.cs" />
     <Compile Include="CombineScripts.cs" />
+    <Compile Include="Configuration\Settings.cs" />
+    <Compile Include="Helpers\CacheHelper.cs" />
+    <Compile Include="Helpers\EncryptionHelper.cs" />
+    <Compile Include="Helpers\ResourceUrlHelper.cs" />
+    <Compile Include="Helpers\UrlHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptDeferFilter.cs" />
     <Compile Include="ScriptDeferModule.cs" />
-    <Compile Include="ScriptHelper.cs" />
+    <Compile Include="Helpers\ScriptHelper.cs" />
     <Compile Include="ScriptsHandler.cs" />
-    <Compile Include="UrlMap.cs" />
-    <Compile Include="UrlMapSet.cs" />
+    <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Assets\AssetList.cs" />
+    <Compile Include="Assets\AssetListType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DmytroShteflyuk.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -50,6 +50,15 @@ namespace DemoProject {
         protected global::System.Web.UI.UpdatePanel upForm;
         
         /// <summary>
+        /// phContent control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder phContent;
+        
+        /// <summary>
         /// lblFirstName control.
         /// </summary>
         /// <remarks>

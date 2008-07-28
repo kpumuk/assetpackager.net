@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Caching;
+using AssetPackager.Assets;
+using AssetPackager.Configuration;
+using AssetPackager.Helpers;
 
 namespace AssetPackager
 {
@@ -13,6 +18,10 @@ namespace AssetPackager
 	/// </summary>
 	public class ScriptsHandler : IHttpHandler
 	{
+		private static readonly Regex _notifyScriptRegex =
+			new Regex(@"if\s*(\s*typeof\s*\(?Sys\)?\s*!==\s*['""]undefined['""])\s*Sys.Application.notifyScriptLoaded(\s*);",
+					  RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
 		/// <summary>
 		/// Enables processing of HTTP Web requests by a custom HttpHandler that implements 
 		/// the <see cref="IHttpHandler" /> interface.
@@ -22,49 +31,49 @@ namespace AssetPackager
 		/// used to service HTTP requests.</param>
 		public void ProcessRequest(HttpContext context)
 		{
-			string setName = context.Request.QueryString["set"];
-			string urls = context.Request.QueryString["urls"];
-			string[] urlMaps = urls.Split(',');
+			string assetListName = context.Request.QueryString["set"];
+			string assetNames = context.Request.QueryString["urls"];
+			AssetList assetList = AssetsHelper.FindAssetList(AssetsHelper.LoadAssets(), assetListName);
 
-			string cacheKey = "Scripts/" + setName + "=" + urls;
-			byte[] encodedBytes = context.Cache[cacheKey] as byte[];
-			if (encodedBytes == null)
+			if (assetListName == "fake")
 			{
-
-				// Find the set
-				UrlMapSet set = ScriptHelper.LoadSets().Find(delegate(UrlMapSet match) { return match.Name == setName; });
-
-				// Find the URLs requested to be rendered
-				List<UrlMap> maps = set.Urls.FindAll(delegate(UrlMap map) { return Array.BinarySearch(urlMaps, map.Name) >= 0; });
-				StringBuilder buffer = new StringBuilder();
-				foreach (UrlMap map in maps)
-					FetchScript(map.Url, buffer);
-
-
-				buffer.Replace("if(typeof(Sys)!=='undefined')Sys.Application.notifyScriptLoaded();", "");
-				buffer.AppendLine();
-				buffer.AppendLine("if(typeof(Sys)!=='undefined')Sys.Application.notifyScriptLoaded();");
-
-				encodedBytes = context.Request.ContentEncoding.GetBytes(buffer.ToString());
-				lock (_lockObject)
-				{
-					if (context.Cache[cacheKey] == null)
-					{
-						context.Cache.Add(cacheKey, encodedBytes, null, DateTime.Now.AddDays(1),
-						                  Cache.NoSlidingExpiration, CacheItemPriority.NotRemovable, null);
-					}
-				}
+				assetList = new AssetList("fake", false, "js");
 			}
 
-			context.Response.ContentType = "text/javascript";
+			string cacheKey = String.Format(CultureInfo.InvariantCulture,
+			                                Settings.ScriptsCacheKeyFormat,
+			                                Settings.AppVersion,
+			                                assetListName + "=" + assetNames);
+			byte[] encodedBytes = (byte[]) CacheHelper.GetData(cacheKey, null,
+			                                                   DateTime.Now.AddHours(Settings.CacheDuration),
+			                                                   CacheItemPriority.NotRemovable,
+			                                                   delegate { return CombineScripts(assetList, assetNames); });
+
+			context.Response.ContentType = AssetListTypeHelper.GetMimeType(assetList.ListType);
 			context.Response.ContentEncoding = context.Request.ContentEncoding;
-			context.Response.Cache.SetMaxAge(TimeSpan.FromDays(30));
-			context.Response.Cache.SetExpires(DateTime.Now.AddDays(30));
+			context.Response.Cache.SetMaxAge(TimeSpan.FromHours(Settings.CacheDuration));
+			context.Response.Cache.SetExpires(DateTime.Now.AddHours(Settings.CacheDuration));
 			context.Response.Cache.SetCacheability(HttpCacheability.Private);
-			context.Response.AppendHeader("Content-Length", encodedBytes.Length.ToString());
+			context.Response.AppendHeader("Content-Length", encodedBytes.Length.ToString(CultureInfo.InvariantCulture));
 
 			context.Response.OutputStream.Write(encodedBytes, 0, encodedBytes.Length);
 			context.Response.Flush();
+		}
+
+		private static object CombineScripts(AssetList assetList, string assetNames)
+		{
+			// Find the URLs requested to be rendered
+			string[] assetNamesArray = assetNames.Split(',');
+			ICollection<Asset> assets = assetList.FindAssets(assetNamesArray);
+
+			StringBuilder buffer = new StringBuilder();
+			foreach (Asset asset in assets)
+				FetchScript(asset.RelativePath, buffer);
+
+			string response = _notifyScriptRegex.Replace(buffer.ToString(), String.Empty);
+			response += "\nif(typeof(Sys)!=='undefined')Sys.Application.notifyScriptLoaded();";
+
+			return HttpContext.Current.Request.ContentEncoding.GetBytes(response);
 		}
 
 		/// <summary>
@@ -88,21 +97,19 @@ namespace AssetPackager
 		{
 			buffer.AppendLine("// " + relativeUrl);
 
-			// ReSharper disable EmptyGeneralCatchClause
 			try
 			{
-				string fileName = Context.Server.MapPath(relativeUrl);
+				string fileName = HttpContext.Current.Server.MapPath(relativeUrl);
 				if (File.Exists(fileName))
 				{
 					buffer.AppendLine(File.ReadAllText(fileName));
 					return;
 				}
 			}
-			catch (Exception)
-			{ }
-			// ReSharper restore EmptyGeneralCatchClause
+			catch (HttpException)
+			{ } // Invalid file path, so try to retrieve via HTTP
 
-			string absoluteUrl = ScriptHelper.ResolveAbsoluteUrl(relativeUrl);
+			string absoluteUrl = UrlHelper.ResolveAbsoluteUrl(relativeUrl);
 			HttpWebRequest request = CreateHttpWebRequest(absoluteUrl);
 			using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
 			{
@@ -131,15 +138,5 @@ namespace AssetPackager
 
 			return request;
 		}
-
-		/// <summary>
-		/// Gets the <see cref="HttpContext" /> object for the current HTTP request.
-		/// </summary>
-		private static HttpContext Context
-		{
-			get { return HttpContext.Current; }
-		}
-
-		private static readonly object _lockObject = new object();
 	}
 }
