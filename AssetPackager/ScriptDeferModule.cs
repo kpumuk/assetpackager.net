@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Web;
+using System.Web.UI;
+using AssetPackager.Configuration;
 
 namespace AssetPackager
 {
@@ -16,7 +18,7 @@ namespace AssetPackager
 		/// ASP.NET application.</param>
 		public void Init(HttpApplication context)
 		{
-			context.BeginRequest += BeginRequest;
+			context.PostRequestHandlerExecute += PostRequestHandlerExecute;
 		}
 
 		/// <summary>
@@ -24,13 +26,15 @@ namespace AssetPackager
 		/// </summary>
 		/// <param name="sender">Event source.</param>
 		/// <param name="e">An <see cref="EventArgs" /> that contains no event data.</param>
-		private void BeginRequest(object sender, EventArgs e)
+		private void PostRequestHandlerExecute(object sender, EventArgs e)
 		{
-			if (Context.Request.AppRelativeCurrentExecutionFilePath.EndsWith(".aspx", StringComparison.OrdinalIgnoreCase) &&
-				String.Compare(Context.Request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase) == 0)
-			{
+			Page page = Context.CurrentHandler as Page;
+			if (page == null) return;
+
+			ScriptManager sm = ScriptManager.GetCurrent(page);
+
+			if (Settings.Enabled && (sm == null || !sm.IsInAsyncPostBack))
 				Context.Response.Filter = new ScriptDeferFilter(Context.Response);
-			}
 		}
 
 		/// <summary>
