@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Assets\MimeTypeAttribute.cs" />
     <Compile Include="Assets\Query.cs" />
+    <Compile Include="Configuration\AssetPackagerConfigurationSection.cs" />
     <Compile Include="Helpers\AssetListTypeHelper.cs" />
     <Compile Include="Helpers\AssetsHelper.cs" />
     <Compile Include="Helpers\QueryHelper.cs" />
