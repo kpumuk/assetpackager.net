@@ -106,6 +106,15 @@ namespace AssetPackager.Configuration
 			}
 		}
 
+		/// <summary>
+		/// Returns <c>false</c> to make configuration non-readonly.
+		/// </summary>
+		/// <returns>Always <c>false</c>.</returns>
+		public override bool IsReadOnly()
+		{
+			return false;
+		}
+
 		private static AssetPackagerSection _instance;
 		private static readonly object _lockObject = new object();
 	}
