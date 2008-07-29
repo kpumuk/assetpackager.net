@@ -14,7 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
-    <AssemblyOriginatorKeyFile>DmytroShteflyuk.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,8 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\MimeTypeAttribute.cs" />
+    <Compile Include="Assets\Query.cs" />
     <Compile Include="Helpers\AssetListTypeHelper.cs" />
     <Compile Include="Helpers\AssetsHelper.cs" />
+    <Compile Include="Helpers\QueryHelper.cs" />
     <Compile Include="WebControls\AssetPackagerScriptManager.cs" />
     <Compile Include="Assets\ShortNameAttribute.cs" />
     <Compile Include="CombineScripts.cs" />
@@ -62,9 +65,6 @@
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\AssetList.cs" />
     <Compile Include="Assets\AssetListType.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="DmytroShteflyuk.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

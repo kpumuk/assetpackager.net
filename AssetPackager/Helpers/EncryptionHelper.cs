@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Configuration;
@@ -29,8 +30,10 @@ namespace AssetPackager.Helpers
 
 		private static byte[] EncryptOrDecryptData(bool fEncrypt, byte[] buf, byte[] modifier, int start, int length)
 		{
-			MethodInfo m = typeof(MachineKeySection).GetMethod("EncryptOrDecryptData",
-																BindingFlags.Static | BindingFlags.NonPublic);
+			Type[] parameters = new Type[] {typeof (bool), typeof (byte[]), typeof (byte[]), typeof (int), typeof (int)};
+			MethodInfo m = typeof (MachineKeySection).GetMethod("EncryptOrDecryptData",
+			                                                    BindingFlags.Static | BindingFlags.NonPublic,
+			                                                    null, parameters, null);
 			return (byte[]) m.Invoke(null, new object[] {fEncrypt, buf, modifier, start, length});
 		}
 	}

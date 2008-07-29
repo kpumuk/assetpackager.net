@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Web.Configuration;
 using AssetPackager.Configuration;
 using AssetPackager.Helpers;
 
@@ -33,7 +34,16 @@ namespace AssetPackager.Helpers
 		[SuppressMessage("Microsoft.Design", "CA1055:UriReturnValuesShouldNotBeStrings")]
 		public static string GetCombinedScriptsUrl(string setName, string setUrls)
 		{
-			string relativeUrl = String.Format(CultureInfo.InvariantCulture, "~/Scripts.axd?set={0}&urls={1}&v={2}", setName, setUrls, Settings.AppVersion);
+			string mode = IsDebuggingEnabled ? "d" : "r";
+			string queryStringFormat = "set={0}&urls={1}&m={2}";
+			string queryString = String.Format(CultureInfo.InvariantCulture, queryStringFormat, setName,
+			                                   setUrls, mode);
+			if (Settings.EncryptQueryString)
+				queryString = "d=" + EncryptionHelper.EncryptString(queryString);
+
+			string scriptPathFormat = "~/Scripts.axd?{0}&v={1}";
+			string relativeUrl = String.Format(CultureInfo.InvariantCulture, scriptPathFormat,
+											   queryString, Settings.AppVersion);
 			return UrlHelper.ResolveAbsoluteUrl(relativeUrl);
 		}
 
@@ -56,5 +66,28 @@ namespace AssetPackager.Helpers
 			}
 			return loadedScripts;
 		}
+
+		public static bool IsDebuggingEnabled
+		{
+			get
+			{
+				if (_isDebuggingEnabled == null)
+				{
+					DeploymentSection section = (DeploymentSection)WebConfigurationManager.GetSection("system.web/deployment");
+					bool retail = section.Retail;
+					if (retail)
+						_isDebuggingEnabled = false;
+					else
+					{
+						CompilationSection webApplicationSection =
+							(CompilationSection)WebConfigurationManager.GetWebApplicationSection("system.web/compilation");
+						bool debug = webApplicationSection.Debug;
+						_isDebuggingEnabled = debug;
+					}
+				}
+				return (bool)_isDebuggingEnabled;
+			}
+		}
+		private static bool? _isDebuggingEnabled;
 	}
 }

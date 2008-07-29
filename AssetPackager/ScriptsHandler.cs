@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Caching;
+using System.Web.Configuration;
 using AssetPackager.Assets;
 using AssetPackager.Configuration;
 using AssetPackager.Helpers;
@@ -31,25 +33,18 @@ namespace AssetPackager
 		/// used to service HTTP requests.</param>
 		public void ProcessRequest(HttpContext context)
 		{
-			string assetListName = context.Request.QueryString["set"];
-			string assetNames = context.Request.QueryString["urls"];
-			AssetList assetList = AssetsHelper.FindAssetList(AssetsHelper.LoadAssets(), assetListName);
-
-			if (assetListName == "fake")
-			{
-				assetList = new AssetList("fake", false, "js");
-			}
+			Query query = QueryHelper.ParseQuery();
 
 			string cacheKey = String.Format(CultureInfo.InvariantCulture,
 			                                Settings.ScriptsCacheKeyFormat,
 			                                Settings.AppVersion,
-			                                assetListName + "=" + assetNames);
+											query.AssetList + "=" + AssetsHelper.SerializeAssets(query.Assets));
 			byte[] encodedBytes = (byte[]) CacheHelper.GetData(cacheKey, null,
 			                                                   DateTime.Now.AddHours(Settings.CacheDuration),
 			                                                   CacheItemPriority.NotRemovable,
-			                                                   delegate { return CombineScripts(assetList, assetNames); });
+			                                                   delegate { return CombineScripts(query.Assets); });
 
-			context.Response.ContentType = AssetListTypeHelper.GetMimeType(assetList.ListType);
+			context.Response.ContentType = AssetListTypeHelper.GetMimeType(query.AssetList.ListType);
 			context.Response.ContentEncoding = context.Request.ContentEncoding;
 			context.Response.Cache.SetMaxAge(TimeSpan.FromHours(Settings.CacheDuration));
 			context.Response.Cache.SetExpires(DateTime.Now.AddHours(Settings.CacheDuration));
@@ -60,12 +55,8 @@ namespace AssetPackager
 			context.Response.Flush();
 		}
 
-		private static object CombineScripts(AssetList assetList, string assetNames)
+		private static object CombineScripts(IEnumerable<Asset> assets)
 		{
-			// Find the URLs requested to be rendered
-			string[] assetNamesArray = assetNames.Split(',');
-			ICollection<Asset> assets = assetList.FindAssets(assetNamesArray);
-
 			StringBuilder buffer = new StringBuilder();
 			foreach (Asset asset in assets)
 				FetchScript(asset.RelativePath, buffer);
@@ -95,11 +86,12 @@ namespace AssetPackager
 		/// <param name="buffer">A <see cref="StringBuilder" /> object to write script to.</param>
 		private static void FetchScript(string relativeUrl, StringBuilder buffer)
 		{
-			buffer.AppendLine("// " + relativeUrl);
+			buffer.AppendLine("/***** " + relativeUrl + " *****/");
 
 			try
 			{
 				string fileName = HttpContext.Current.Server.MapPath(relativeUrl);
+				fileName = FindFile(fileName);
 				if (File.Exists(fileName))
 				{
 					buffer.AppendLine(File.ReadAllText(fileName));
@@ -137,6 +129,41 @@ namespace AssetPackager
 			request.Timeout = 5 * 1000;
 
 			return request;
+		}
+
+		private static string FindFile(string path)
+		{
+			if (ScriptHelper.IsDebuggingEnabled)
+			{
+				string debugFileName = GetDebugPath(path);
+				return debugFileName;
+			}
+			return path;
+		}
+
+		private static string GetDebugPath(string releasePath)
+		{
+			string path, query;
+			if (releasePath.IndexOf('?') >= 0)
+			{
+				int index = releasePath.IndexOf('?');
+				path = releasePath.Substring(0, index);
+				query = releasePath.Substring(index);
+			}
+			else
+			{
+				path = releasePath;
+				query = String.Empty;
+			}
+
+			return ReplaceExtension(path) + query;
+		}
+
+		private static string ReplaceExtension(string path)
+		{
+			int extensionIndex = path.LastIndexOf('.');
+			string extension = path.Substring(extensionIndex);
+			return (path.Substring(0, extensionIndex) + ".debug" + extension);
 		}
 	}
 }
