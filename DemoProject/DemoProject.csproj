@@ -64,8 +64,10 @@
     <Content Include="App_Themes\Default\rating.css" />
     <Content Include="App_Themes\Default\tabs.css" />
     <Content Include="Controls\Contact.ascx" />
+    <Content Include="Controls\Settings.ascx" />
     <Content Include="Controls\Success.ascx" />
     <Content Include="Default.aspx" />
+    <Content Include="Global.asax" />
     <Content Include="javascripts\swfobject.debug.js" />
     <Content Include="javascripts\swfobject.js" />
     <Content Include="Web.config" />
@@ -77,6 +79,13 @@
     </Compile>
     <Compile Include="Controls\Contact.ascx.designer.cs">
       <DependentUpon>Contact.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Settings.ascx.cs">
+      <DependentUpon>Settings.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Settings.ascx.designer.cs">
+      <DependentUpon>Settings.ascx</DependentUpon>
     </Compile>
     <Compile Include="Controls\Success.ascx.cs">
       <DependentUpon>Success.ascx</DependentUpon>
@@ -91,6 +100,9 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

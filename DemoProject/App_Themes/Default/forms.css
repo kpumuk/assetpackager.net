@@ -2,15 +2,15 @@
   font:100% verdana,arial,sans-serif;
   margin: 0;
   padding: 0;
-  min-width: 500px;
-  max-width: 600px;
-  width: 560px; 
+  min-width: 600px;
+  max-width: 700px;
+  width: 660px; 
 }
 
 form label { 
 	display: block;  /* block float the labels to left column, set a width */
 	float: left; 
-	width: 150px; 
+	width: 170px; 
 	padding: 0; 
 	margin: 5px 0 0; /* set top margin same as form input - textarea etc. elements */
 	text-align: right; 
@@ -30,7 +30,9 @@ span.error { color:#990000; font-weight:bold; font-size: 80%; }
 
 form div.row { margin-top:5px; margin-bottom: 10px; }
 
-form div.row div.field { margin-left: 155px; }
+form div.row div.field { margin-left: 175px; }
+
+form div.row div.single { font-weight: bold; padding: 5px 0px 0px; }
 
 div.youtube { width: 425px; height: 344px; margin: 10px; }
 

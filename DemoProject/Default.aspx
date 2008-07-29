@@ -1,6 +1,7 @@
 <%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="DemoProject._Default" %>
 <%@ Register Assembly="AssetPackager" Namespace="AssetPackager.WebControls" TagPrefix="apn" %>
 <%@ Register Src="~/Controls/Contact.ascx" TagName="Contact" TagPrefix="apn" %>
+<%@ Register Src="~/Controls/Settings.ascx" TagName="Settings" TagPrefix="apn" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -40,6 +41,11 @@
 					<script type="text/javascript">
 						swfobject.embedSWF("http://www.youtube.com/v/Oe3FG4EOgyU&hl=en", "youtube", "425", "344", "9.0.0");
 					</script>
+				</ContentTemplate>
+			</ajaxToolkit:TabPanel>
+			<ajaxToolkit:TabPanel ID="tabSettings" runat="server" HeaderText="Settings">
+				<ContentTemplate>
+					<apn:Settings runat="server" ID="ucSettings" />
 				</ContentTemplate>
 			</ajaxToolkit:TabPanel>
         </ajaxToolkit:TabContainer>
