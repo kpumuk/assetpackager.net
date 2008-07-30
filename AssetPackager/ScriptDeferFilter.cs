@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Web;
 using System.IO;
 using System.Text;
@@ -14,35 +15,44 @@ namespace AssetPackager
 	[SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "ASP.NET filters technique implemented using streams.")]
 	public class ScriptDeferFilter : Stream
 	{
-		/// <summary>
-		/// Name of the hidden field with loaded scripts list.
-		/// </summary>
-
 		#region Private fields
 
+		/// <summary>
+		/// Base response stream object.
+		/// </summary>
 		private readonly Stream _responseStream;
-		private long _position;
 
 		/// <summary>
-		/// When this is true, script blocks are suppressed and captured for 
+		/// When this is <c>true</c>, script blocks are suppressed and captured for 
 		/// later rendering
 		/// </summary>
 		private bool _captureScripts;
 
 		/// <summary>
-		/// Holds all script blocks that are injected by the controls
-		/// The script blocks will be moved after the form tag renders
+		/// When it is <c>true</c>, current position is inside the server form.
+		/// </summary>
+		private bool _isInServerForm;
+
+		/// <summary>
+		/// Holds all script blocks that are injected by the controls.
+		/// The script blocks will be moved to position right before the
+		/// server form end tag.
 		/// </summary>
 		private readonly StringBuilder _scriptBlocks;
 
+		/// <summary>
+		/// Response encoding.
+		/// </summary>
 		private readonly Encoding _encoding;
 
 		/// <summary>
 		/// Holds characters from last Write(...) call where the start tag did not
 		/// end and thus the remaining characters need to be preserved in a buffer so 
-		/// that a complete tag can be parsed
+		/// that a complete tag can be parsed.
 		/// </summary>
 		private char[] _pendingBuffer;
+
+		#endregion
 
 		/// <summary>
 		/// Initializes a new instance of <see cref="ScriptDeferFilter" /> class.
@@ -50,15 +60,18 @@ namespace AssetPackager
 		/// <param name="response">Response stream.</param>
 		public ScriptDeferFilter(HttpResponse response)
 		{
+			// Get response encoding.
 			_encoding = response.Output.Encoding;
+
+			// Store response stream object.
 			_responseStream = response.Filter;
 
+			// A buffer for script blocks.
 			_scriptBlocks = new StringBuilder(5000);
-			// When this is on, script blocks are captured and not written to output
+
+			// When this is on, script blocks are captured and not written to output.
 			_captureScripts = true;
 		}
-
-		#endregion
 
 		#region Filter overrides
 
@@ -99,6 +112,9 @@ namespace AssetPackager
 			_responseStream.Close();
 		}
 
+		/// <summary>
+		/// Writes pending buffer to the output stream.
+		/// </summary>
 		private void FlushPendingBuffer()
 		{
 			if (null == _pendingBuffer) return;
@@ -129,11 +145,7 @@ namespace AssetPackager
 		/// <summary>
 		/// Gets or sets the position within the current stream.
 		/// </summary>
-		public override long Position
-		{
-			get { return _position; }
-			set { _position = value; }
-		}
+		public override long Position { get; set; }
 
 		/// <summary>
 		/// Sets the position within the current stream.
@@ -177,6 +189,15 @@ namespace AssetPackager
 
 		#endregion
 
+		/// <summary>
+		/// Writes a sequence of bytes to the current stream and advances the current position
+		/// within this stream by the number of bytes written.
+		/// </summary>
+		/// <param name="buffer">An array of bytes. This method copies <paramref name="count" /> 
+		/// bytes from <paramref name="buffer" /> to the current stream. </param>
+		/// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at 
+		/// which to begin copying bytes to the current stream. </param>
+		/// <param name="count">The number of bytes to be written to the current stream.</param>
 		public override void Write(byte[] buffer, int offset, int count)
 		{
 			// If we are not capturing script blocks anymore, just redirect to response stream
@@ -234,7 +255,7 @@ namespace AssetPackager
 				// <script
 				// Or it's the ending html tag or some tag closing that ends the whole response
 				// </html>
-				if (pos + "script".Length >= content.Length)
+				if (pos + TAG_SCRIPT.Length >= content.Length)
 				{
 					// a tag started but there are less than 10 characters available. So, let's
 					// store the remaining content in a buffer and wait for another Write(...) or
@@ -251,11 +272,11 @@ namespace AssetPackager
 					pos += 2; // go past the </ 
 
 					// See if script tag is ending
-					if (IsScriptTag(content, pos))
+					if (CompareChars(TAG_SCRIPT, content, pos))
 					{
 						// Script tag just ended. Get the whole script
 						// and store in buffer
-						pos = pos + "script>".Length;
+						pos += TAG_SCRIPT.Length + 1;
 						_scriptBlocks.Append(content, scriptTagStart, pos - scriptTagStart);
 						_scriptBlocks.Append(Environment.NewLine);
 						lastScriptTagEnd = pos;
@@ -265,11 +286,11 @@ namespace AssetPackager
 						pos--; // continue will increase pos by one again
 						continue;
 					}
-					if (IsBodyTag(content, pos))
+					if (_isInServerForm && CompareChars(TAG_FORM, content, pos))
 					{
-						// body tag has just end. Time for rendering all the script
-						// blocks we have suppressed so far and stop capturing script blocks
-
+						// Server form tag has just end. Time for rendering all the script
+						// blocks we have suppressed so far and stop capturing script blocks.
+						_isInServerForm = false;
 						if (_scriptBlocks.Length > 0)
 						{
 							// Render all pending html output till now
@@ -296,7 +317,7 @@ namespace AssetPackager
 				}
 				else
 				{
-					if (IsScriptTag(content, pos + 1))
+					if (CompareChars(TAG_SCRIPT, content, pos + 1))
 					{
 						// Script tag started. Record the position as we will 
 						// capture the whole script tag including its content
@@ -307,15 +328,41 @@ namespace AssetPackager
 						WriteOutput(content, lastScriptTagEnd, scriptTagStart - lastScriptTagEnd);
 
 						// Skip the tag start to save some loops
-						pos += "<script".Length;
+						pos += TAG_SCRIPT.Length + 1;
 
 						scriptTagStarted = true;
 					}
+					else if (!_isInServerForm && CompareChars(TAG_INPUT, content, pos + 1))
+					{
+						// <input> tag started, so we need to check if it is __VIEWSTATE field
+						// to make sure that the form that contains it is a server form.
+
+						// First we need to sure if there is enough bytes in the buffer.
+						if (pos + TAG_INPUT_VIEWSTATE.Length >= content.Length)
+						{
+							_pendingBuffer = new char[content.Length - pos];
+							Array.Copy(content, pos, _pendingBuffer, 0, content.Length - pos);
+							break;
+						}
+
+						// Check if input tag contains viewstate information.
+						if (CompareChars(TAG_INPUT_VIEWSTATE, content, pos + 1))
+						{
+							// Yep! We are in the server form.
+							_isInServerForm = true;
+							pos += TAG_INPUT_VIEWSTATE.Length + 1;
+						}
+						else
+						{
+							// Skip the input tag.
+							pos += TAG_INPUT.Length + 1;
+						}
+					}
 					else
 					{
-						// some other tag started
-						// safely skip 2 character because the smallest tag is one character e.g. <b>
-						// just an optimization to eliminate one loop 
+						// Some other tag started.
+						// We can safely skip 2 character because the smallest tag is one 
+						// character e.g. <b>. It's just an optimization to eliminate one loop.
 						pos++;
 					}
 				}
@@ -329,13 +376,13 @@ namespace AssetPackager
 			}
 			else
 			{
-				/// Render the characters since the last script tag ending
+				// Render the characters since the last script tag ending
 				WriteOutput(content, lastScriptTagEnd, pos - lastScriptTagEnd);
 			}
 		}
 
 		/// <summary>
-		/// Render collected scripts blocks all together
+		/// Render collected scripts blocks all together.
 		/// </summary>
 		private void RenderAllScriptBlocks()
 		{
@@ -345,6 +392,12 @@ namespace AssetPackager
 			_responseStream.Write(scriptBytes, 0, scriptBytes.Length);
 		}
 
+		/// <summary>
+		/// Writes specified number of bytes to the output stream.
+		/// </summary>
+		/// <param name="content">An array of chars to write.</param>
+		/// <param name="pos">Position in buffer.</param>
+		/// <param name="length">Number of chars to write.</param>
 		private void WriteOutput(char[] content, int pos, int length)
 		{
 			if (length == 0) return;
@@ -353,26 +406,35 @@ namespace AssetPackager
 			_responseStream.Write(buffer, 0, buffer.Length);
 		}
 
-		private static bool IsScriptTag(char[] content, int pos)
+		/// <summary>
+		/// Compares string with characters contained in the <paramref name="content" /> at
+		/// the specified position ignoring case.
+		/// </summary>
+		/// <remarks>String value to compare should be uppercased (for example "EXAMPLE")!</remarks>
+		/// <param name="value">Value to compare.</param>
+		/// <param name="content">An array of characters to look in.</param>
+		/// <param name="pos">Starting position in the buffer.</param>
+		/// <returns><c>true</c> when buffer contains specified string value at the
+		/// given position; otherwise, <c>false</c>.</returns>
+		private static bool CompareChars(string value, char[] content, int pos)
 		{
-			if (pos + 5 < content.Length)
-				return ((content[pos] == 's' || content[pos] == 'S')
-				        && (content[pos + 1] == 'c' || content[pos + 1] == 'C')
-				        && (content[pos + 2] == 'r' || content[pos + 2] == 'R')
-				        && (content[pos + 3] == 'i' || content[pos + 3] == 'I')
-				        && (content[pos + 4] == 'p' || content[pos + 4] == 'P')
-				        && (content[pos + 5] == 't' || content[pos + 5] == 'T'));
-			return false;
+			if (pos + value.Length >= content.Length) return false;
+			int i = 0;
+			foreach (char c in value)
+			{
+				if (c != Char.ToUpper(content[pos + i], CultureInfo.InvariantCulture)) return false;
+				i++;
+			}
+			return true;
 		}
 
-		private static bool IsBodyTag(char[] content, int pos)
-		{
-			if (pos + 3 < content.Length)
-				return ((content[pos] == 'f' || content[pos] == 'F')
-				        && (content[pos + 1] == 'o' || content[pos + 1] == 'O')
-				        && (content[pos + 2] == 'r' || content[pos + 2] == 'R')
-				        && (content[pos + 3] == 'm' || content[pos + 3] == 'M'));
-			return false;
-		}
+		#region Private constants
+
+		private const string TAG_INPUT = "INPUT";
+		private const string TAG_INPUT_VIEWSTATE = "INPUT TYPE=\"HIDDEN\" NAME=\"__VIEWSTATE\"";
+		private const string TAG_FORM = "FORM";
+		private const string TAG_SCRIPT = "SCRIPT";
+
+		#endregion
 	}
 }

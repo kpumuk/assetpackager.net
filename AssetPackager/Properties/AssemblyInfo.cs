@@ -25,7 +25,7 @@ using System.Resources;
 [assembly: Guid("7c4a6674-4d03-44ff-90d5-0f9a847b3a59")]
 
 // Version information for an assembly
-[assembly: AssemblyVersion("0.1.0.0")]
+[assembly: AssemblyVersion("0.1.1.*")]
 [assembly: AssemblyFileVersion("0.1.0.0")]
 
 // Informs the ResourceManager of the neutral culture of an assembly
