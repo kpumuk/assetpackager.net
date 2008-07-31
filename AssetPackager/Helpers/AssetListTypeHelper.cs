@@ -4,6 +4,9 @@ using AssetPackager.Assets;
 
 namespace AssetPackager.Helpers
 {
+	/// <summary>
+	/// Contains helper methods for <see cref="AssetListType" /> enum.
+	/// </summary>
 	public static class AssetListTypeHelper
 	{
 		/// <summary>
@@ -31,6 +34,11 @@ namespace AssetPackager.Helpers
 			return AssetListType.Undefined;
 		}
 
+		/// <summary>
+		/// Gets a MIME type associated with specified <see cref="AssetListType" />.
+		/// </summary>
+		/// <param name="assetListType">An <see cref="AssetListType" /> object to analyze.</param>
+		/// <returns>MIME type or empty string when no MIME type found.</returns>
 		public static string GetMimeType(AssetListType assetListType)
 		{
 			object[] attributes = assetListType.GetType().GetCustomAttributes(typeof (MimeTypeAttribute), false);

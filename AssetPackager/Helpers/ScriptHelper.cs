@@ -67,6 +67,9 @@ namespace AssetPackager.Helpers
 			return loadedScripts;
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether debugging enabled on machine or application level.
+		/// </summary>
 		public static bool IsDebuggingEnabled
 		{
 			get

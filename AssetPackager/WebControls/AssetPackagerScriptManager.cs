@@ -7,8 +7,16 @@ using AssetPackager.Helpers;
 
 namespace AssetPackager.WebControls
 {
+	/// <summary>
+	/// Replaces already loaded scripts with empty script reference.
+	/// </summary>
 	public class AssetPackagerScriptManager : ScriptManager
 	{
+		/// <summary>
+		/// Checks if script reference contains already loaded script link and replaces
+		/// it with empty script.
+		/// </summary>
+		/// <param name="e">A <see cref="ScriptReferenceEventArgs" /> that contains event data.</param>
 		protected override void OnResolveScriptReference(ScriptReferenceEventArgs e)
 		{
 			base.OnResolveScriptReference(e);
@@ -17,7 +25,7 @@ namespace AssetPackager.WebControls
 		}
 
 		/// <summary>
-		/// Removes already loaded scripts with <c>~/s/fakeScript.js</c> empty script.
+		/// Replaces already loaded scripts with fake script.
 		/// </summary>
 		/// <param name="script">A <see cref="ScriptReference" /> object.</param>
 		private void ProcessLoadedScripts(ScriptReference script)

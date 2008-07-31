@@ -98,7 +98,7 @@ namespace AssetPackager.Assets
 
 		/// <summary>
 		/// Gets an <see cref="Asset" /> object for specified relative path whoose name is in the
-		/// <see cref="assetNames" /> list.
+		/// <paramref name="assetNames" /> list.
 		/// </summary>
 		/// <param name="relativePath">Relative asset path to look for.</param>
 		/// <param name="assetNames">A list of asset names to look where.</param>

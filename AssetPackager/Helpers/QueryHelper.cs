@@ -5,8 +5,16 @@ using AssetPackager.Assets;
 
 namespace AssetPackager.Helpers
 {
+	/// <summary>
+	/// Contains helper methods to work with query string.
+	/// </summary>
 	public static class QueryHelper
 	{
+		/// <summary>
+		/// Parses query string and returns an initialized <see cref="Query" /> object.
+		/// </summary>
+		/// <remarks>When query string is encrypted, it also decrypts it.</remarks>
+		/// <returns>A <see cref="Query" /> object that contains query data.</returns>
 		public static Query ParseQuery()
 		{
 			HttpRequest request = HttpContext.Current.Request;
@@ -16,6 +24,12 @@ namespace AssetPackager.Helpers
 			return ParseQueryString(queryString, request["v"]);
 		}
 
+		/// <summary>
+		/// Internal method that parses query string.
+		/// </summary>
+		/// <param name="queryString">Query string to parse.</param>
+		/// <param name="version">Requested script version.</param>
+		/// <returns>A <see cref="Query" /> object that contains query data.</returns>
 		private static Query ParseQueryString(string queryString, string version)
 		{
 			Query query = new Query();
