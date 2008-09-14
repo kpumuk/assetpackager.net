@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Web.UI;
 
 namespace AssetPackager.Helpers
@@ -65,6 +64,20 @@ namespace AssetPackager.Helpers
 			return UrlHelper.MakeRelativePath(page.ClientScript.GetWebResourceUrl(type, resourceName));
 		}
 
+        /// <summary>
+        /// Gets a <see cref="MethodInfo" /> of the <c>GetUrl</c> of <see cref="ScriptReference" />
+        /// instance.
+        /// </summary>
+        /// <remarks>
+        /// This method can take two or three parameters depending on ASP.NET AJAX library version
+        /// (version two parameters would appear after installing Visual Studio SP1):
+        /// <list>
+        /// <item><term><c>2</c></term><description><c>GetUrl(ScriptManager, bool)</c></description></item>
+        /// <item><term><c>3</c></term><description><c>GetUrl(ScriptManager, ScriptManager, bool)</c></description></item>
+        /// </list>
+        /// Result will be cached in <see cref="_scriptReferenceGetUrlMethodInfo" />
+        /// private variable.
+        /// </remarks>
 		private static MethodInfo ScriptReferenceGetUrlMethodInfo
 		{
 			get
@@ -77,7 +90,6 @@ namespace AssetPackager.Helpers
 				return _scriptReferenceGetUrlMethodInfo;
 			}
 		}
-
 		private static MethodInfo _scriptReferenceGetUrlMethodInfo;
 	}
 }
