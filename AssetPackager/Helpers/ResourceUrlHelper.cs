@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Web.UI;
 
 namespace AssetPackager.Helpers
@@ -46,8 +47,9 @@ namespace AssetPackager.Helpers
 		[SuppressMessage("Microsoft.Design", "CA1055:UriReturnValuesShouldNotBeStrings")]
 		public static string ResolveScriptManagerUrl(ScriptManager sm, ScriptReference sr)
 		{
-			MethodInfo mGetUrl = typeof (ScriptReference).GetMethod("GetUrl", BindingFlags.Instance | BindingFlags.NonPublic);
-			return UrlHelper.MakeRelativePath((string) mGetUrl.Invoke(sr, new object[] {sm, sm, true}));
+			MethodInfo mGetUrl = ScriptReferenceGetUrlMethodInfo;
+			object[] parameters = mGetUrl.GetParameters().Length == 2 ? new object[] {sm, true} : new object[] {sm, sm, true};
+			return UrlHelper.MakeRelativePath((string) mGetUrl.Invoke(sr, parameters));
 		}
 
 		/// <summary>
@@ -62,5 +64,20 @@ namespace AssetPackager.Helpers
 		{
 			return UrlHelper.MakeRelativePath(page.ClientScript.GetWebResourceUrl(type, resourceName));
 		}
+
+		private static MethodInfo ScriptReferenceGetUrlMethodInfo
+		{
+			get
+			{
+				if (_scriptReferenceGetUrlMethodInfo == null)
+				{
+					_scriptReferenceGetUrlMethodInfo = typeof (ScriptReference).GetMethod(
+						"GetUrl", BindingFlags.Instance | BindingFlags.NonPublic);
+				}
+				return _scriptReferenceGetUrlMethodInfo;
+			}
+		}
+
+		private static MethodInfo _scriptReferenceGetUrlMethodInfo;
 	}
 }
